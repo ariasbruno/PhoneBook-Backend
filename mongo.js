@@ -30,14 +30,14 @@ mongoose.connect(url).then(() => {
       },
     },
   })
-  
+
   const Person = mongoose.model('Person', personSchema, 'persons')
-  
+
   const person = new Person({
     name: newName,
     number: newNumber,
   })
-  
+
   if (process.argv.length<4) {
     Person
       .find({})
@@ -46,12 +46,12 @@ mongoose.connect(url).then(() => {
           console.log(person)
           mongoose.connection.close()
         })
-    })
+      })
   }else{
     person
       .save()
       .then(persons => {
-        console.log("added " + newName + " number " + newNumber + " to phonebook")
+        console.log('added ' + newName + ' number ' + newNumber + ' to phonebook')
         mongoose.connection.close()
       })
   }

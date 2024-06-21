@@ -1,11 +1,11 @@
-const express = require('express');
-const app = express();
-const morgan = require('morgan');
+const express = require('express')
+const app = express()
+const morgan = require('morgan')
 require('dotenv').config()
 
-const Person = require("./models/person")
+const Person = require('./models/person')
 
-app.use(express.static('dist'));
+app.use(express.static('dist'))
 
 const requestLogger = (request, response, next) => {
   console.log('Method: ', request.method)
@@ -15,14 +15,14 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
-morgan.token('post-data', (req, res) => {
-  if (req.method === 'POST') {
-    return JSON.stringify(req.body);
+morgan.token('post-data', (request, response) => {
+  if (request.method === 'POST') {
+    return JSON.stringify(request.body)
   }
-  return '';
-});
+  return ''
+})
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post-data'));
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post-data'))
 
 const errorHandler = (error, request, response, next) => {
   console.log(error.message)
@@ -46,24 +46,24 @@ const unknownEndpoint = (request, response) => {
 }
 
 app.use((request, response, next) => {
-  request.requestTime = Date.now();
-  next();
-});
+  request.requestTime = Date.now()
+  next()
+})
 
 function contarEntradas() {
-  return Person.countDocuments();
+  return Person.countDocuments()
 }
 
 
 app.get('/info', (request, response) => {
-  const tiempoDeSolicitud = request.requestTime;
+  const tiempoDeSolicitud = request.requestTime
   contarEntradas().then(numeroDeEntradas => {
-    response.send(`Phonebook has info for ${numeroDeEntradas} people<br>${new Date(tiempoDeSolicitud)}`);
+    response.send(`Phonebook has info for ${numeroDeEntradas} people<br>${new Date(tiempoDeSolicitud)}`)
   })
 })
 
 app.get('/api/persons', (request, response) => {
-  Person.find({}).then(persons =>{
+  Person.find({}).then(persons => {
     response.json(persons)
   })
 })
@@ -77,24 +77,24 @@ app.post('/api/persons', (request, response, next) => {
   })
 
   person.save().then(savedPerson => {
-      response.json(savedPerson)
+    response.json(savedPerson)
   })
     .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
-  .then(person => {
-    if (person) {
-      response.json(person)
+    .then(person => {
+      if (person) {
+        response.json(person)
       } else {
         response.status(404).end()
       }
-  })
-  .catch(error => next(error))
+    })
+    .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(result =>  {
       response.status(204).end()
